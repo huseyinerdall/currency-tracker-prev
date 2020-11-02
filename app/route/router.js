@@ -1,22 +1,22 @@
 module.exports = function(app) {
 
-    const customers = require('../controller/currency.controller.js');
+    const currency = require('../controller/currency.controller.js');
 
     // Create a new Customer
-    app.post('/api/customer', customers.create);
+    app.post('/api/customer', currency.create);
 
     // Retrieve all Customer
-    app.get('/api/customers', customers.findAll);
+    app.get('/api/currency', currency.findAll);
 
     // Retrieve a single Customer by Id
-    app.get('/api/customer/:customerId', customers.findById);
+    app.get('/api/customer/:customerId', currency.findById);
 
   // Retrieve Customers Age
-    app.get('/api/customers/age/:age', customers.findByAge);
+    app.get('/api/currency/age/:age', currency.findByAge);
 
     // Update a Customer with Id
-    app.put('/api/customer/:customerId', customers.update);
+    app.put('/api/customer/:customerId', currency.update);
 
     // Delete a Customer with Id
-    app.delete('/api/customer/:customerId', customers.delete);
+    app.delete('/api/customer/:customerId', currency.delete);
 }
