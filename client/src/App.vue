@@ -24,17 +24,22 @@
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
+        href="/"
         text
       >
-        <span class="mr-2">Latest Release</span>
+        <span class="mr-2">home</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-main>
       <HelloWorld />
+      <v-container>
+        <v-col
+        style="border: 1px solid red;">
+          <router-view/>
+        </v-col>
+      </v-container>
     </v-main>
   </v-app>
 </template>
