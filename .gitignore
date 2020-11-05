@@ -1,3 +1,5 @@
+/client/node_modules
+/app/node_modules
 # Logs
 logs
 *.log
