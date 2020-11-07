@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="indigo" dark >
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -27,31 +27,47 @@
         href="/"
         text
       >
-        <span class="mr-2">home</span>
+        <span class="mr-2">ANASAYFA</span>
+        <v-icon>mdi-open-in-new</v-icon>
+      </v-btn>
+      <v-btn
+        href="/"
+        text
+      >
+        <span class="mr-2">GİRİŞ</span>
+        <v-icon>mdi-open-in-new</v-icon>
+      </v-btn>
+      <v-btn
+        href="/"
+        text
+      >
+        <span class="mr-2">ÜYELİK</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-main>
-      <HelloWorld />
+
       <v-container>
-        <v-col
-        style="border: 1px solid red;">
+        <v-col>
           <router-view/>
         </v-col>
       </v-container>
     </v-main>
+    <Footer />
   </v-app>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
+import Footer from "./components/common/Footer";
+
+
 
 export default {
   name: "App",
 
   components: {
-    HelloWorld
+    Footer
   },
 
   data: () => ({
@@ -59,3 +75,9 @@ export default {
   })
 };
 </script>
+
+<style media="screen">
+  body{
+    font-family: "Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
+</style>

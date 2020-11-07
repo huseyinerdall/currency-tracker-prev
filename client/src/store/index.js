@@ -4,7 +4,12 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
+  state: {
+    appName: "Currency Latest",
+    domainName: "currencylatest.com",
+  },
+  getters: {
+  },
   mutations: {},
   actions: {},
   modules: {}
