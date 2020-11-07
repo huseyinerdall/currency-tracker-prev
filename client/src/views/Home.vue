@@ -5,7 +5,6 @@
         <v-col
         class="col-6 col-sm-12">
           <IzlemeSecenek />
-          <MainDoviz />
         </v-col>
         <v-col
         class="col-6 col-sm-12">
@@ -30,14 +29,12 @@
 
 <script>
 // @ is an alias to /src
-import MainDoviz from "@/components/MainDoviz.vue";
 import IzlemeSecenek from "@/components/IzlemeSecenek.vue";
 import MainCryptoCurrency from "@/components/MainCryptoCurrency.vue";
 
 export default {
   name: "Home",
   components: {
-    MainDoviz,
     IzlemeSecenek,
     MainCryptoCurrency
   }

@@ -9,6 +9,10 @@ import VueAxios from 'vue-axios'
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios)
 
+Vue.filter('signint', function (value) {
+  if (value>=0) return "+"+value.toFixed(2);
+  return value.toFixed(2);
+})
 
 new Vue({
   router,

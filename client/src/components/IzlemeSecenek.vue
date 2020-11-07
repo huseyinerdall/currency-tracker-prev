@@ -4,7 +4,6 @@
       v-model="value"
       :items="items"
       label="İzlemek istediklerinizi seçin."
-      color="purple"
       multiple
     >
       <template v-slot:selection="{ item, index }">

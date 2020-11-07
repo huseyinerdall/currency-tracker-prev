@@ -6,19 +6,12 @@
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="./assets/logo.png"
           transition="scale-transition"
           width="40"
         />
+        <h1 class="text-xl-h4">{{$store.state.appName}}</h1>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
       </div>
 
       <v-spacer></v-spacer>
@@ -77,7 +70,10 @@ export default {
 </script>
 
 <style media="screen">
-  body{
+  body,*{
     font-family: "Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
+  .v-main{
+    background: #1c2f44 !important;
   }
 </style>
