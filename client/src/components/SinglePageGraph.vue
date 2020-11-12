@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h2>{{$route.params.coin}}</h2>
+    <h2 class="white--text font-weight-light ml-10">{{$route.params.coin}}</h2>
     <div id="chart">
       <apexchart type="area" height="350" :options="chartOptions" :series="series"></apexchart>
     </div>
@@ -8,14 +8,14 @@
 </template>
 
 <script>
-
+//import dump from '../assets/dump.js'
 export default {
   name: "SinglePageGraph",
 
   data: ()=>({
     series: [{
-      name: 'XYZ MOTORS',
-      data: [1,2,3]
+      name: 'bitcoin',
+      data: [30, 40, 45]
     }],
     chartOptions: {
       chart: {
@@ -61,7 +61,8 @@ export default {
         },
       },
       xaxis: {
-        type: 'datetime',
+        //type: 'datetime',
+        categories: ['a','b','c'],
       },
       tooltip: {
         shared: false,

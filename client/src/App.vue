@@ -16,7 +16,7 @@
 
       <v-spacer></v-spacer>
       <v-btn
-          v-if="isAuthenticated"
+          v-if="!$store.state.isAuthenticated"
           href="/wallet"
           text
       >
@@ -31,6 +31,7 @@
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn
+          v-if="$store.state.isAuthenticated"
         href="/login"
         text
       >
@@ -38,6 +39,7 @@
         <v-icon>mdi-account-arrow-right-outline</v-icon>
       </v-btn>
       <v-btn
+          v-if="$store.state.isAuthenticated"
         href="/register"
         text
       >

@@ -84,12 +84,12 @@
         <v-list-item-content>
           <v-row>
             <v-spacer></v-spacer>
-            <v-col cols="4" sm="4">
-              Toplam:
+            <v-col cols="5" sm="5" class="font-weight-bold">
+              Toplam değer : {{toplam}} ₺
             </v-col>
             <v-spacer></v-spacer>
-            <v-col cols="4" sm="4" class="text-right">
-              123.4567
+            <v-col cols="4" sm="4" class="font-weight-bold" :class="[kazanc>=0 ? 'green--text' : 'red--text']">
+              Kar / Zarar : {{kazanc | signint}} ₺
             </v-col>
             <v-spacer></v-spacer>
           </v-row>
@@ -111,6 +111,8 @@ export default {
       },
     ],
     items:[],
+    toplam:123.456,
+    kazanc: -100.232
   }),
 }
 </script>

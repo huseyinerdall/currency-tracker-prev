@@ -1,9 +1,10 @@
 {
   "development": {
-    "username": "hus",
+    "username": "postgres",
     "password": "1058",
-    "database": "currency",
+    "database": "currency-tracker",
     "host": "127.0.0.1",
+    "port": "5433",
     "dialect": "postgres"
   },
   "test": {
@@ -14,10 +15,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
+    "username": "postgres",
+    "password": "1058",
+    "database": "currency-tracker",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "port": "5433",
+    "dialect": "postgres"
   }
 }

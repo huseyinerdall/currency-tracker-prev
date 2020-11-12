@@ -1,11 +1,7 @@
 <template>
   <div class="home">
     <v-container>
-
-        <v-col
-        class="col-md-12">
-          <!--<IzlemeSecenek />-->
-        </v-col>
+          <CurrencyConverterColumn />
       <v-row>
         <v-col
         class="col-md-12">
@@ -33,13 +29,18 @@
 /*import IzlemeSecenek from "@/components/IzlemeSecenek.vue";*/
 import MainCryptoCurrency from "@/components/MainCryptoCurrency.vue";
 import Golds from "@/components/Golds.vue";
+//import CurrencyConverter from "@/components/CurrencyConverter.vue";
+import CurrencyConverterColumn from "@/components/CurrencyConverterColumn.vue";
 
 export default {
   name: "Home",
   components: {
     //IzlemeSecenek,
     MainCryptoCurrency,
-    Golds
+    Golds,
+    //CurrencyConverter,
+    CurrencyConverterColumn
+
   }
 };
 </script>

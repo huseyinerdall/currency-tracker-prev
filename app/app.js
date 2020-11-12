@@ -4,19 +4,25 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const axios = require('axios');
 var fs = require('fs');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 var parseString = require('xml2js').parseString;
 var utils = require('./utils');
+const db = require("./models");
+
+const SECRET_KEY = 'SI6ImM1Z';
 
 //static long data
 const coins = require('./static/coins.json');
 
 const goldXmlBodyStr = fs.readFileSync('./static/altinkaynakGold.xml', 'utf8');
-;
+
 const currencyXmlBodyStr = fs.readFileSync('./static/altinkaynakCurrency.xml', 'utf8');
-;
+
 
 const app = express();
-
+app.use(express.static('public')) // static dosyaları serve etmek için
 
 var config = {
     headers: {
@@ -31,37 +37,6 @@ app.use(morgan('tiny'));
 app.use(cors());
 app.use(bodyParser.json());
 
-let dolarAlis = 0;
-let dolarSatis = 0;
-let altinAlis = 0;
-let altinSatis = 0;
-
-
-/*setInterval(()=>{
-
-  axios.post('http://data.altinkaynak.com/DataService.asmx', currencyXmlBodyStr, config).then(res => {
-      xml = res.data.toString();
-      parseString(xml, function (err, result) {
-          parseString(result['soap:Envelope']['soap:Body'][0]['GetCurrencyResponse'][0]['GetCurrencyResult'][0],function(err, result2){
-              dolarAlis = result2['Kurlar']['Kur'][0]['Alis'][0]
-              dolarSatis = result2['Kurlar']['Kur'][0]['Satis'][0]
-          })
-
-      });
-  }).catch(err => console.log(err));
-
-  axios.post('http://data.altinkaynak.com/DataService.asmx', goldXmlBodyStr, config).then(res => {
-      xml = res.data.toString();
-      parseString(xml, function (err, result) {
-
-          parseString(result['soap:Envelope']['soap:Body'][0]['GetGoldResponse'][0]['GetGoldResult'][0],function(err, result2){
-              console.log(result2["Kurlar"]["Kur"]);
-          })
-
-      });
-  }).catch(err => console.log(err));
-
-},1000)*/
 
 app.get('/golds', (req, res) => {
     let factRes = [];
@@ -129,7 +104,52 @@ app.get('/coins', (req, res) => {
         })
 })
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-    console.log(`listening on ${port}`);
-});
+
+app.post('/register', (req, res) => {
+
+    db.User.findOne({
+        where: {
+            email: req.body.email
+        }
+    })
+        .then(user => {
+            if (user){
+                res.send("Bu email adresi çoktan kullanılmış.");
+            }else{
+                req.body.passwd = bcrypt.hashSync(req.body.passwd, 8);
+                db.User.create(req.body);
+            }
+        })
+        .catch(err => res.send(err.message))
+})
+
+app.post('/login', (req, res) => {
+    console.log(req.body)
+    if (!req.body.email || !req.body.passwd){
+        res.send("Alanlar boş bırakılamaz!")
+    }
+    db.User.findOne({
+        where: {
+            email: req.body.email
+        }
+    })
+        .then(user => {
+            let passwordIsValid  = bcrypt.compareSync(req.body.passwd,user.dataValues.passwd)
+            if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
+            let token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: 86400 });
+            console.log(token)
+            res.status(200).send({ auth: true, token: token, user: user });
+        })
+        .catch(err => {
+            res.send(err.message)
+        })
+})
+
+db.sequelize.sync().
+    then(()=> {
+        const port = process.env.PORT || 4000;
+        app.listen(port, () => {
+            console.log(`listening on ${port}`);
+        });
+})
+
