@@ -4,22 +4,23 @@
       <h2 class="white--text font-weight-light ml-10">
         <v-avatar size="32" class="mb-2">
           <img
-              :src="coinImage"
-              :alt="$route.params.coin"
+              src="http://localhost:4000/gold.png"
+              alt="$route.params.gold"
           >
         </v-avatar>
-        {{$route.params.coin}}
+        {{$route.params.gold}}
       </h2>
       <h2 class="white--text font-weight-light ml-10" :class="[state > 0 ? 'price-up' : 'price-down']">
-        {{ current_price }} $
-
+        {{ alis }}
+        <span v-if="$route.params.gold.indexOf('Ons') == 0">$</span>
+        <span v-else>₺</span>
       </h2>
-      <h3 class="ml-4 mt-2 white--text" :class="[price_change_24h>=0 ? 'green--text' : 'red--text']">
+      <!--<h3 class="ml-4 mt-2 white&#45;&#45;text" :class="[price_change_24h>=0 ? 'green&#45;&#45;text' : 'red&#45;&#45;text']">
         {{price_change_24h}}
         <v-icon color="red" v-if="price_change_24h < 0">mdi-trending-down</v-icon>
         <v-icon color="green" v-else-if="price_change_24h > 0">mdi-trending-up</v-icon>
         <v-icon color="gray" v-else-if="price_change_24h == 0">mdi-trending-neutral</v-icon>
-      </h3>
+      </h3>-->
     </v-row>
 
     <div id="chart">
@@ -36,15 +37,14 @@ export default {
   name: "SinglePageGraph",
   data: (app)=>({
     state:0,
-    coinImage: '',
     high: '',
     low: '',
     current_price: '',
     last_updated: '',
-    price_change_24h: '',
-    price_change_percentage_24h: '',
+    alis: '',
+    satis: '',
     series: [{
-      name: app.$route.params.coin,
+      name: app.$route.params.gold,
       data: [30, 40, 45,30, 40, 45,30, 40, 45,30, 40, 45,30, 40, 45]
     }],
     chartOptions: {
@@ -134,27 +134,15 @@ export default {
   }),
   created() {
     setInterval(() =>{
-      axios.get(`http://localhost:4000/coin/${this.$route.params.coin}`)
+      axios.get(`http://localhost:4000/gold/${this.$route.params.gold}`)
           .then(response=>{
-            this.coinImage = response.data[0].image;
-            this.high = response.data[0].high_24h;
-            this.low = response.data[0].low_24h;
-            this.current_price = response.data[0].current_price;
-            this.last_updated = response.data[0].last_updated;
-            this.price_change_24h = response.data[0].price_change_24h;
-            this.price_change_percentage_24h = response.data[0].price_change_percentage_24h;
+            this.alis = response.data["Alış"];
+            this.satis = response.data["Satış"];
           })
     },1000)
   },
   watch: {
-    current_price(newValue, oldValue){
-      console.log(newValue+"---"+oldValue+"degişti")
-      if(+newValue<+oldValue){
-        this.state = -1;
-      }else{
-        this.state = 1;
-      }
-    }
+
   }
 };
 </script>

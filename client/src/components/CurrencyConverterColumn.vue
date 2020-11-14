@@ -1,13 +1,17 @@
 <template>
-  <v-card>
-    <v-row class="col-lg-4">
+  <v-card class="col-lg-4">
+    <v-card-title>
+      Döviz Dönüştürücü
+    </v-card-title>
+    <v-row>
       <v-col sm="12" lg="12" class="pb-0 mb-0">
         <v-text-field
             label="Miktar"
             solo
+            dark
         ></v-text-field>
       </v-col>
-      <v-col class="pt-0" sm="10" lg="10">
+      <v-col class="pt-0" sm="10" lg="12">
         <v-autocomplete
             v-model="model1"
             :items="items"
@@ -21,6 +25,7 @@
             item-value="symbol"
             label="Para Birimi Ara"
             solo
+            dark
         >
           <template v-slot:no-data>
             <v-list-item>
@@ -66,12 +71,7 @@
           </template>
         </v-autocomplete>
       </v-col>
-      <v-col sm="2" lg="2">
-        <v-icon size="40" color="white">
-          mdi-arrow-right-bold
-        </v-icon>
-      </v-col>
-      <v-col sm="10" lg="10">
+      <v-col sm="10" lg="12">
         <v-autocomplete
             v-model="model2"
             :items="items"
@@ -85,6 +85,7 @@
             item-value="symbol"
             label="Para Birimi Ara"
             solo
+            dark
         >
           <template v-slot:no-data>
             <v-list-item>
@@ -130,8 +131,9 @@
           </template>
         </v-autocomplete>
       </v-col>
-      <v-col sm="2" lg="2">
-        <v-btn height="48">
+      <v-col sm="2" lg="12">
+        <v-btn height="48" block color="indigo" class="white--text">
+          Dönüştür
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-col>
@@ -153,3 +155,9 @@ export default {
   }),
 };
 </script>
+
+<style scoped>
+.v-text-field--outlined >>> fieldset {
+  border-color: rgba(192, 0, 250, 0.986) !important;
+}
+</style>

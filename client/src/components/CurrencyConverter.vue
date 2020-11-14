@@ -1,10 +1,13 @@
 <template>
-  <v-container>
+  <v-card>
+    <v-card-title>Döviz Dönüştürücü</v-card-title>
     <v-row>
-      <v-col sm="12" lg="2">
+      <v-col sm="12" lg="2" class="ml-lg-6">
         <v-text-field
+            v-model="amount"
             label="Miktar"
             solo
+            dark
         ></v-text-field>
       </v-col>
       <v-col sm="10" lg="3">
@@ -18,9 +21,10 @@
             hide-details
             hide-selected
             item-text="name"
-            item-value="symbol"
+            item-value="name"
             label="Para Birimi Ara"
             solo
+            dark
         >
           <template v-slot:no-data>
             <v-list-item>
@@ -67,7 +71,7 @@
         </v-autocomplete>
       </v-col>
       <v-col sm="2" lg="1">
-        <v-icon size="40" color="white" class="mt-1">
+        <v-icon size="40" color="indigo" class="mt-1">
           mdi-arrow-right-bold
         </v-icon>
       </v-col>
@@ -82,9 +86,10 @@
             hide-details
             hide-selected
             item-text="name"
-            item-value="symbol"
+            item-value="name"
             label="Para Birimi Ara"
             solo
+            dark
         >
           <template v-slot:no-data>
             <v-list-item>
@@ -131,16 +136,29 @@
         </v-autocomplete>
       </v-col>
       <v-col sm="2" lg="2" class="ml-lg-2">
-        <v-btn height="48">
+        <v-btn height="48" color="indigo" class="white--text" @click="convert">
           Dönüştür
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-col>
     </v-row>
-  </v-container>
+    <v-alert
+        v-if="resulted"
+        color="primary"
+        dark
+        icon="mdi-vuetify"
+        border="left"
+        prominent
+        dismissible
+        transition="slide-y-transition"
+    >
+      {{amount}} {{model1}} = {{result}} {{model2}}
+    </v-alert>
+  </v-card>
 </template>
 
 <script>
+import axios from 'axios';
 import currencies from '../assets/currencies.js';
 export default {
   name: "CurrencyConverter",
@@ -151,6 +169,26 @@ export default {
     model2: null,
     search: null,
     tab: null,
+    source: '',
+    target: '',
+    amount: '',
+    resulted: false,
+    result: '',
   }),
+  methods: {
+    convert(){
+      if(!(this.model1 && this.model2 && this.amount))return;
+      axios.post("http://localhost:4000/converter",{
+        source: this.model1,
+        target: this.model2,
+        amount: this.amount,
+      })
+      .then(response => {
+        this.resulted = true;
+        console.log(response.data.result)
+        this.result = response.data.result;
+      })
+    }
+  }
 };
 </script>

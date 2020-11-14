@@ -19,7 +19,7 @@ const coins = require('./static/coins.json');
 const goldXmlBodyStr = fs.readFileSync('./static/altinkaynakGold.xml', 'utf8');
 
 const currencyXmlBodyStr = fs.readFileSync('./static/altinkaynakCurrency.xml', 'utf8');
-
+const truncgil = 'https://finans.truncgil.com/today.json';
 
 const app = express();
 app.use(express.static('public')) // static dosyaları serve etmek için
@@ -38,7 +38,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-app.get('/golds', (req, res) => {
+/*app.get('/golds', (req, res) => {
     let factRes = [];
     let temp = {};
     axios.post('http://data.altinkaynak.com/DataService.asmx', goldXmlBodyStr, config)
@@ -61,6 +61,29 @@ app.get('/golds', (req, res) => {
 
             });
         }).catch(err => console.log(err));
+})*/
+
+app.get('/golds', (req, res) => {
+    let golds = [];
+    axios.get('https://finans.truncgil.com/today.json')
+        .then(response => {
+            for (const element in response.data) {
+                if (element.indexOf("Altın") > 0 || element == '22 Ayar Bilezik' || element == 'Gümüş'){
+                    response.data[element]["type"] = element;
+                    golds.push(response.data[element])
+                }
+            }
+            res.json(golds)
+        })
+        .catch(err => console.log(err));
+})
+
+app.get('/gold/:goldName', (req, res) => {
+    axios.get('https://finans.truncgil.com/today.json')
+        .then(response => {
+            res.json(response.data[req.params.goldName])
+        })
+        .catch(err => console.log(err));
 })
 
 app.get('/currencies', (req, res) => {
@@ -104,6 +127,30 @@ app.get('/coins', (req, res) => {
         })
 })
 
+app.post('/converter', (req, res) => {
+    let source = req.body.source;
+    let target = req.body.target;
+    let amount = req.body.amount;
+    axios.get(truncgil)
+        .then((response) => {
+            let s = +response.data[source]["Alış"];
+
+            let a = +amount;
+            let result;
+            if (target == "TÜRK LİRASI") {
+                result = (a * s);
+            } else if (source == "TÜRK LİRASI") {
+                let t = +response.data[target]["Alış"];
+                result = (a / t).toFixed(4);
+            } else {
+                let t = +response.data[target]["Alış"];
+                result = a * (s / t).toFixed(4);
+            }
+
+            console.log("result", result)
+            res.json({"result": result});
+        })
+})
 
 app.post('/register', (req, res) => {
 
@@ -113,9 +160,9 @@ app.post('/register', (req, res) => {
         }
     })
         .then(user => {
-            if (user){
+            if (user) {
                 res.send("Bu email adresi çoktan kullanılmış.");
-            }else{
+            } else {
                 req.body.passwd = bcrypt.hashSync(req.body.passwd, 8);
                 db.User.create(req.body);
             }
@@ -125,7 +172,7 @@ app.post('/register', (req, res) => {
 
 app.post('/login', (req, res) => {
     console.log(req.body)
-    if (!req.body.email || !req.body.passwd){
+    if (!req.body.email || !req.body.passwd) {
         res.send("Alanlar boş bırakılamaz!")
     }
     db.User.findOne({
@@ -134,22 +181,34 @@ app.post('/login', (req, res) => {
         }
     })
         .then(user => {
-            let passwordIsValid  = bcrypt.compareSync(req.body.passwd,user.dataValues.passwd)
-            if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
-            let token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: 86400 });
+            let passwordIsValid = bcrypt.compareSync(req.body.passwd, user.dataValues.passwd)
+            if (!passwordIsValid) return res.status(401).send({auth: false, token: null});
+            let token = jwt.sign({id: user.id}, SECRET_KEY, {expiresIn: 86400});
             console.log(token)
-            res.status(200).send({ auth: true, token: token, user: user });
+            res.status(200).send({auth: true, token: token, user: user});
         })
         .catch(err => {
             res.send(err.message)
         })
 })
+let tempDolar = 0;
+setInterval(()=>{
+    axios.get('https://finans.truncgil.com/today.json')
+        .then(response => {
+            if(response.data["ABD DOLARI"]["Alış"] != tempDolar){
+                db.Dolar.create({Alis:response.data["ABD DOLARI"]["Alış"],Satis:response.data["ABD DOLARI"]["Satış"]});
+                tempDolar = response.data["ABD DOLARI"]["Alış"];
+            }
+        })
+        .catch(err => console.log(err));
 
-db.sequelize.sync().
-    then(()=> {
-        const port = process.env.PORT || 4000;
-        app.listen(port, () => {
-            console.log(`listening on ${port}`);
-        });
+},1000)
+
+db.sequelize.sync().then(() => {
+
+    const port = process.env.PORT || 4000;
+    app.listen(port, () => {
+        console.log(`listening on ${port}`);
+    });
 })
 

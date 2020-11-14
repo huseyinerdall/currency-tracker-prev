@@ -6,6 +6,7 @@
     hide-default-footer
     :loading="!coinloaded"
     disable-pagination
+    height="720"
   >
     <template v-slot:item.shortName="{ item }">
       <router-link :to="{ name: 'Coins', params: { coin: item.name }}" tag="h3">{{ item.shortName | uppercase }}</router-link>

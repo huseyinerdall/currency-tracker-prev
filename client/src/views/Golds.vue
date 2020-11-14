@@ -1,17 +1,17 @@
 <template>
   <div class="coins">
-    <SinglePageGraph />
+    <SinglePageGraphGold />
     <Description />
   </div>
 </template>
 
 <script>
-import SinglePageGraph from "@/components/SinglePageGraph.vue";
+import SinglePageGraphGold from "@/components/SinglePageGraphGold.vue";
 import Description from "@/components/Description.vue";
 export default {
   name: "Coins",
   components: {
-    SinglePageGraph,
+    SinglePageGraphGold,
     Description,
   },
   created() {

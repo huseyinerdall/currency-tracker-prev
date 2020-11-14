@@ -5,8 +5,11 @@ import About from "../views/About.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Coins from "../views/Coins.vue";
+import Golds from "../views/Golds.vue";
 import Wallet from "../views/Wallet.vue";
 
+// Admin Side
+import Dashboard from "../views/admin/Dashboard.vue";
 
 Vue.use(VueRouter);
 
@@ -59,6 +62,14 @@ const routes = [
     }
   },
   {
+    path: "/golds/:gold",
+    name: "Golds",
+    component: Golds,
+    meta: {
+      guest: true
+    }
+  },
+  {
     path: "/wallet",
     name: "Wallet",
     component: Wallet,
@@ -69,7 +80,7 @@ const routes = [
   {
     path: '/admin',
     name: 'admin',
-    //component: Admin,
+    component: Dashboard,
     meta: {
       requiresAuth: true,
       is_admin : true
@@ -84,6 +95,11 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  var interval_id = window.setInterval("", 9999); // Get a reference to the last
+
+  for (var i = 1; i < interval_id; i++){
+    window.clearInterval(i);
+  }
   if(localStorage.getItem('jwt') != null){
     if(to.matched.some(record => record.name == 'Login')){
       next({name: 'Home'})
