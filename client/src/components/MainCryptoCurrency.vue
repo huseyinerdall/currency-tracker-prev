@@ -27,12 +27,15 @@
 
 
 <script>
-import axios from "axios";
+//import axios from "axios";
 //import coins from '../assets/coins.json';
+import io from "socket.io-client";
+var socket = io.connect("http://localhost:4000");
+
   export default {
     data () {
       return {
-        coinloaded: false,
+        coinloaded: true,
         headers: [
           { text: 'Döviz Adı',align: 'start', sortable: false,value: 'shortName',},
           { text: 'Satış Fiyatı($)', value: 'price',sortable: false,align: 'right', },
@@ -40,18 +43,23 @@ import axios from "axios";
           { text: 'En Düşük', value: 'low',sortable: false,align: 'right', },
           { text: 'Kapanış', value: 'close',sortable: false,align: 'right', },
         ],
-        data: []
+        data:[]
       }
     },
     created() {
       let app = this;
-      setInterval(function () {
+      /*setInterval(function () {
         axios.get("http://localhost:4000/coins")
             .then((res)=>{
               app.data = res.data;
               app.coinloaded = true;
             })
-      },1000)
+      },1000)*/
+      socket.on("coins", fetchedData => {
+        app.data = fetchedData
+      })
+    },
+    mounted() {
     },
     methods: {
       getColor (price) {

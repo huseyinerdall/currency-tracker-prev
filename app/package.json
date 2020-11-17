@@ -18,6 +18,8 @@
     "pg": "^8.5.0",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5",
+    "socket.io": "^3.0.1",
+    "ws": "^7.4.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

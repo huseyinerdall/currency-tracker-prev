@@ -1,4 +1,4 @@
-const express = require('express');
+var express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -6,6 +6,8 @@ const axios = require('axios');
 var fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+
 
 var parseString = require('xml2js').parseString;
 var utils = require('./utils');
@@ -20,9 +22,13 @@ const goldXmlBodyStr = fs.readFileSync('./static/altinkaynakGold.xml', 'utf8');
 
 const currencyXmlBodyStr = fs.readFileSync('./static/altinkaynakCurrency.xml', 'utf8');
 const truncgil = 'https://finans.truncgil.com/today.json';
-
+const socketIO = require('socket.io')
 const app = express();
+app.use(morgan('tiny'));
+app.use(cors({credentials: true}));
+app.use(bodyParser.json());
 app.use(express.static('public')) // static dosyaları serve etmek için
+
 
 var config = {
     headers: {
@@ -31,11 +37,6 @@ var config = {
         //'Content-Length': 100,
     }
 };
-
-
-app.use(morgan('tiny'));
-app.use(cors());
-app.use(bodyParser.json());
 
 
 /*app.get('/golds', (req, res) => {
@@ -103,10 +104,13 @@ app.get('/currencies', (req, res) => {
 app.get('/coin/:coinName', (req, res) => {
     let coinID = utils.search(req.params["coinName"], coins)["id"];
     axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinID}&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
-        .then((response) => {
+        .then(async(response) => {
+            //const data = await db[req.params["coinName"]].findAll();
             res.json(response.data);
         })
 })
+
+
 
 app.get('/coins', (req, res) => {
     let factRes = [];
@@ -191,24 +195,78 @@ app.post('/login', (req, res) => {
             res.send(err.message)
         })
 })
-let tempDolar = 0;
-setInterval(()=>{
-    axios.get('https://finans.truncgil.com/today.json')
-        .then(response => {
-            if(response.data["ABD DOLARI"]["Alış"] != tempDolar){
-                db.Dolar.create({Alis:response.data["ABD DOLARI"]["Alış"],Satis:response.data["ABD DOLARI"]["Satış"]});
-                tempDolar = response.data["ABD DOLARI"]["Alış"];
-            }
-        })
-        .catch(err => console.log(err));
 
-},1000)
 
 db.sequelize.sync().then(() => {
 
     const port = process.env.PORT || 4000;
-    app.listen(port, () => {
+    var server = app.listen(port, () => {
         console.log(`listening on ${port}`);
     });
+    var io = require('socket.io')(server,{
+        cors: {
+            origin: "http://localhost:8080",
+            methods: ["GET", "POST"]
+        }
+    });
+
+    let tempDolar = 0;
+    let tempBitcoin = 0;
+
+    setInterval(()=>{
+        let factRes = [];
+        let golds = [];
+        let temp = {};
+        axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
+            .then((response) => {
+                for (let i = 0; i < response.data.length; i++) {
+                    temp = {};
+                    temp["name"] = response.data[i]["name"];
+                    temp["shortName"] = response.data[i]["symbol"];
+                    temp["price"] = response.data[i]["current_price"];
+                    temp["high"] = response.data[i]["high_24h"];
+                    temp["low"] = response.data[i]["low_24h"];
+                    temp["close"] = parseFloat(response.data[i]["current_price"]) + parseFloat(response.data[i]["price_change_percentage_24h"]); //close price
+                    factRes.push(temp);
+                }
+                io.emit('coins',factRes);
+            })
+
+
+        axios.get('https://finans.truncgil.com/today.json')
+            .then(response => {
+                for (const element in response.data) {
+                    if (element.indexOf("Altın") > 0 || element == '22 Ayar Bilezik' || element == 'Gümüş'){
+                        response.data[element]["type"] = element;
+                        golds.push(response.data[element])
+                    }
+                }
+                io.emit('coins',golds);
+            })
+            .catch(err => console.log(err));
+
+        axios.get('https://finans.truncgil.com/today.json')
+            .then(response => {
+                if(response.data["ABD DOLARI"]["Alış"] != tempDolar){
+                    db.Dolar.create({Alis:response.data["ABD DOLARI"]["Alış"],Satis:response.data["ABD DOLARI"]["Satış"]});
+                    tempDolar = response.data["ABD DOLARI"]["Alış"];
+                    io.emit('dolar',tempDolar);
+                }
+
+            })
+            .catch(err => console.log(err));
+
+        axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
+            .then((response) => {
+                if(response.data[0]["current_price"] != tempBitcoin) {
+                    db.Bitcoin.create({Fiyat: response.data[0]["current_price"]});
+                    tempBitcoin = response.data[0]["current_price"];
+                    io.emit('bitcoin',tempBitcoin);
+                }
+
+            })
+
+    },1000)
+
 })
 

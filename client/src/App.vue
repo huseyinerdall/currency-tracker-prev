@@ -157,9 +157,10 @@
 </template>
 
 <script>
-import VueJwtDecode from "vue-jwt-decode";
+//import VueJwtDecode from "vue-jwt-decode";
 import Footer from "./components/common/Footer";
-
+import io from "socket.io-client";
+var socket = io.connect("http://localhost:4000");
 
 export default {
   name: "App",
@@ -173,9 +174,15 @@ export default {
     dialog: false,
   }),
   created() {
-    let token = localStorage.getItem("jwt")
-    let decoded = VueJwtDecode.decode(token);
-    console.log(decoded)
+    //let token = localStorage.getItem("jwt")
+    //let decoded = VueJwtDecode.decode(token);
+    //console.log(decoded)
+    socket.on("dolar", fetchedData => {
+      console.log(fetchedData)
+    })
+    socket.on("bitcoin", fetchedData => {
+      console.log(fetchedData)
+    })
   }
 };
 </script>

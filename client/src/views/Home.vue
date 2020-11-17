@@ -2,6 +2,7 @@
   <div class="home">
     <v-container>
           <CurrencyConverter />
+          <CurrencyMatrixTable />
       <v-row>
         <v-col
         class="col-md-12">
@@ -29,6 +30,7 @@
 import MainCryptoCurrency from "@/components/MainCryptoCurrency.vue";
 import Golds from "@/components/Golds.vue";
 import CurrencyConverter from "@/components/CurrencyConverter.vue";
+import CurrencyMatrixTable from "@/components/CurrencyMatrixTable.vue";
 
 export default {
   name: "Home",
@@ -37,7 +39,7 @@ export default {
     MainCryptoCurrency,
     Golds,
     CurrencyConverter,
-
+    CurrencyMatrixTable,
   }
 };
 </script>

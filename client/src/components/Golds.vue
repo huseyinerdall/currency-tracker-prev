@@ -17,12 +17,13 @@
 
 
 <script>
-import axios from "axios";
+//import axios from "axios";
+import io from "socket.io-client";
+var socket = io.connect("http://localhost:4000");
 export default {
   data () {
     return {
-      interval: null,
-      goldloaded: false,
+      goldloaded: true,
       headers: [
         { text: 'Tür',align: 'start', sortable: false,value: 'type',},
         { text: 'Alış Fiyatı', value: 'Alış',sortable: false,align: 'right', },
@@ -34,15 +35,19 @@ export default {
     }
   },
   created() {
-    this.interval = setInterval(() => {
+    let app = this;
+    socket.on("golds", fetchedData => {
+      console.log(fetchedData)
+      app.data = fetchedData
+    })
+    /*this.interval = setInterval(() => {
       let app = this;
       axios.get("http://localhost:4000/golds")
           .then((res)=>{
             app.data = res.data;
-            console.log(res.data)
             app.goldloaded = true;
           })
-    },1000)
+    },1000)*/
   },
   methods: {
     getColor (price) {
