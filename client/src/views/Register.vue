@@ -104,7 +104,7 @@ export default {
   },
   methods:{
     register(){
-      axios.post("http://localhost:4000/register",{
+      axios.post(`${this.$store.state.addr}:${this.$store.state.port}/register`,{
         fullName: this.fullname,
         email: this.email,
         passwd: this.password1

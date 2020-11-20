@@ -14,6 +14,9 @@ Vue.config.productionTip = false;
 axios.defaults.baseConfig = "http://localhost:4000/";
 Vue.use(VueAxios, axios)
 
+//for server
+Vue.prototype.$addr = 'http://localhost'
+Vue.prototype.$port = '4000'
 
 Vue.filter('signint', function (value) {
   if (value>=0) return "+"+value.toFixed(2);

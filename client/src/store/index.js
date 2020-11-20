@@ -7,6 +7,8 @@ export default new Vuex.Store({
   state: {
     appName: "Currency Latest",
     domainName: "currencylatest.com",
+    addr: "localhost",
+    port: "4000",
     token: localStorage.getItem('jwt') || '',
     status: '',
   },

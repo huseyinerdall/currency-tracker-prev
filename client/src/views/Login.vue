@@ -64,7 +64,7 @@ export default {
   },
   methods:{
     login(){
-      axios.post("http://localhost:4000/login",{
+      axios.post(`${this.$store.state.addr}:${this.$store.state.port}/login`,{
         email: this.email,
         passwd: this.password
       })

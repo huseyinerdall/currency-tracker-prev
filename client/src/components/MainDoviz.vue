@@ -43,7 +43,7 @@
       setInterval(function(){
         axios({
             method: 'GET',
-            url: `http://localhost:4000`,
+            url: `http://${this.$store.state.addr}:${this.$store.state.port}`,
             headers: {
                'Access-Control-Allow-Origin': '*',
                'Content-type': 'application/json',

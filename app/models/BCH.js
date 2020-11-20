@@ -3,16 +3,16 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Bitcoin extends Model {
+    class BCH extends Model {
         static associate(models) {
             // define association here
         }
     };
-    Bitcoin.init({
+    BCH.init({
         Fiyat: DataTypes.STRING,
     }, {
         sequelize,
-        modelName: 'Bitcoin',
+        modelName: 'BCH',
     });
-    return Bitcoin;
+    return BCH;
 };

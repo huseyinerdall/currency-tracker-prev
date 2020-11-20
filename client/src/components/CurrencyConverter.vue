@@ -146,7 +146,7 @@
         v-if="resulted"
         color="primary"
         dark
-        icon="mdi-vuetify"
+        icon="mdi-cash-check"
         border="left"
         prominent
         dismissible
@@ -178,7 +178,7 @@ export default {
   methods: {
     convert(){
       if(!(this.model1 && this.model2 && this.amount))return;
-      axios.post("http://localhost:4000/converter",{
+      axios.post(`${this.$store.state.addr}:${this.$store.state.port}/converter`,{
         source: this.model1,
         target: this.model2,
         amount: this.amount,

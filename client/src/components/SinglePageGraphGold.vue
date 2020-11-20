@@ -134,7 +134,7 @@ export default {
   }),
   created() {
     setInterval(() =>{
-      axios.get(`http://localhost:4000/gold/${this.$route.params.gold}`)
+      axios.get(`http://${this.$store.state.addr}:${this.$store.state.port}/gold/${this.$route.params.gold}`)
           .then(response=>{
             this.alis = response.data["Alış"];
             this.satis = response.data["Satış"];

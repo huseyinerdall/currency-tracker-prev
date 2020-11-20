@@ -7,20 +7,27 @@
     :loading="!coinloaded"
     disable-pagination
     height="720"
+    style="font-size:8px !important"
   >
     <template v-slot:item.shortName="{ item }">
       <router-link :to="{ name: 'Coins', params: { coin: item.name }}" tag="h3">{{ item.shortName | uppercase }}</router-link>
       <h4 style="font-weight:400;">{{ item.name }}</h4>
     </template>
     <template v-slot:item.price="{ item }">
-      <h3 style="font-weight:400;" class="text-right">{{item.price.toFixed(4) }}</h3>
+      <h3 style="font-weight:400;font-size:12px;" class="text-right">{{item.price.toFixed(4) }}</h3>
       <h4 style="font-weight:400;font-size:11px;color:#91dc5a;" class="text-right"
           :class="[item.price-item.close>=0 ? 'green--text' : 'red--text']">
-        {{+item.price - (+item.close) | signint}}
+        {{+item.price - Math.abs(+item.close) | signint}}
         (% {{ (((+item.price-(+item.close))/+item.close)*100) | signint }})</h4>
     </template>
+    <template v-slot:item.low="{ item }">
+      <span style="font-size:10px;">{{ item.low | tofixedfour }}</span>
+    </template>
+    <template v-slot:item.high="{ item }">
+      <span style="font-size:10px;">{{ item.high | tofixedfour }}</span>
+    </template>
     <template v-slot:item.close="{ item }">
-      {{ item.close | tofixedfour }}
+      <span style="font-size:10px;">{{ item.close | tofixedfour }}</span>
     </template>
   </v-data-table>
 </template>
@@ -30,7 +37,6 @@
 //import axios from "axios";
 //import coins from '../assets/coins.json';
 import io from "socket.io-client";
-var socket = io.connect("http://localhost:4000");
 
   export default {
     data () {
@@ -48,6 +54,7 @@ var socket = io.connect("http://localhost:4000");
     },
     created() {
       let app = this;
+      var socket = io.connect(`http://${this.$store.state.addr}:${this.$store.state.port}`);
       /*setInterval(function () {
         axios.get("http://localhost:4000/coins")
             .then((res)=>{

@@ -19,7 +19,7 @@
 <script>
 //import axios from "axios";
 import io from "socket.io-client";
-var socket = io.connect("http://localhost:4000");
+
 export default {
   data () {
     return {
@@ -36,8 +36,8 @@ export default {
   },
   created() {
     let app = this;
+    var socket = io.connect(`${this.$store.state.addr}:${this.$store.state.port}`);
     socket.on("golds", fetchedData => {
-      console.log(fetchedData)
       app.data = fetchedData
     })
     /*this.interval = setInterval(() => {
