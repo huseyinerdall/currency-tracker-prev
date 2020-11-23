@@ -44,6 +44,26 @@ var config = {
     }
 };
 
+app.get('/tcmb', (req, res) => {
+    let factRes = [];
+    let temp = {};
+    axios.get('https://www.tcmb.gov.tr/kurlar/today.xml')
+        .then(response => {
+            xml = response.data.toString();
+            parseString(xml, function (err, result) {
+
+                result = result["Tarih_Date"]["Currency"];
+                for (let i = 0; i < result.length; i++) {
+                    temp = {};
+                    temp["name"] = result[i]["Isim"][0];
+                    temp["sell"] = result[i]["BanknoteSelling"][0];
+                    temp["buy"] = result[i]["BanknoteBuying"][0];
+                    factRes.push(temp);
+                }
+                io.emit('tcmb',factRes);
+            });
+        }).catch(err => console.log(err));
+})
 
 /*app.get('/golds', (req, res) => {
     let factRes = [];
@@ -115,7 +135,7 @@ app.get('/coin/:coinName', (req, res) => {
     axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinID}&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
         .then(async(response) => {
             if(response.data[0]["current_price"] != temp || !temp){
-                data = await db[coinSymbol].findAll();
+                data = await db[coinSymbol.toUpperCase()].findAll();
                 io.emit(req.params["coinName"],data);
             }
             temp = response.data[0]["current_price"];
@@ -221,9 +241,11 @@ db.sequelize.sync().then(() => {
     let tempDolar = 0;
     let tempBitcoin = 0;
     let M = {}; // coin değişimini tespit için
+    let C = {}; // döviz değişimini tespit için
     setInterval(()=>{
         let factRes = [];
         let golds = [];
+        let currencies = [];
         let temp = {};
 
         axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
@@ -239,9 +261,8 @@ db.sequelize.sync().then(() => {
                     factRes.push(temp);
 
                     // aşagıdaki koşul sadece api çıktısı aynı sırada sonuçlanırsa düzgün calışır
-                    if(response.data[i]["current_price"] != M[response.data[i]["symbol"]]) {
-                        db[response.data[i]["symbol"]].create({Fiyat: response.data[i]["current_price"]})
-                        console.log(response.data[i]["symbol"],"*******************************")
+                    if(response.data[i]["current_price"] != M[response.data[i]["symbol"]]  && db[response.data[i]["symbol"]]) {
+                        db[response.data[i]["symbol"].toUpperCase()].create({Fiyat: response.data[i]["current_price"]})
                         //db[response.data[i]["symbol"]].destroy({ truncate : true, cascade: false })
                         M[response.data[i]["symbol"]] = response.data[i]["current_price"];
                     }
@@ -256,21 +277,27 @@ db.sequelize.sync().then(() => {
                 for (const element in response.data) {
                     if (element.indexOf("Altın") > 0 || element == '22 Ayar Bilezik' || element == 'Gümüş'){
                         response.data[element]["type"] = element;
+                        //db["$"+utils.turkishToEnglish(element)].destroy({ truncate : true, cascade: false })
+                        /*indis = "$"+utils.turkishToEnglish(element)
+                        if(db[indis]){
+                            db[indis]
+                                .create({Alis: response.data[element]["Alış"],Satis: response.data[element]["Satış"]})
+                        }*/
                         golds.push(response.data[element])
+                    }else if(element.indexOf("Güncelleme") < 0 && element.indexOf("ÇEKME") < 0){
+                        response.data[element]["type"] = element;
+                        indis = utils.turkishToEnglish(element)
+                        //db[indis].destroy({ truncate : true, cascade: false })
+                        if(db[indis] && response.data[element]["Alış"] != C[indis]){
+                            db[indis]
+                                .create({Alis: response.data[element]["Alış"],Satis: response.data[element]["Satış"]})
+                            C[indis] = response.data[element]["Alış"];
+                        }
+                        currencies.push(response.data[element])
                     }
                 }
                 io.emit('golds',golds);
-            })
-            .catch(err => console.log(err));
-
-        axios.get('https://finans.truncgil.com/today.json')
-            .then(response => {
-                if(response.data["ABD DOLARI"]["Alış"] != tempDolar){
-                    //db.dolar.create({Alis:response.data["ABD DOLARI"]["Alış"],Satis:response.data["ABD DOLARI"]["Satış"]});
-                    tempDolar = response.data["ABD DOLARI"]["Alış"];
-                    io.emit('dolar',tempDolar);
-                }
-
+                io.emit('currencies',currencies);
             })
             .catch(err => console.log(err));
 

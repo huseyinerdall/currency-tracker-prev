@@ -26,6 +26,16 @@
       <apexchart ref="realtimeChart" class="ma-0 pa-0" type="area" height="350" :options="chartOptions"
                  :series="series"></apexchart>
     </div>
+
+    <v-overlay
+        :opacity="1"
+        :value="overlay"
+        color="indigo"
+    >
+      <v-progress-circular indeterminate size="64">
+      </v-progress-circular>
+    </v-overlay>
+
   </v-container>
 </template>
 
@@ -37,6 +47,7 @@ import io from "socket.io-client";
 export default {
   name: "SinglePageGraph",
   data: (app) => ({
+    overlay:true,
     state: 0,
     coinImage: '',
     high: '',
@@ -139,19 +150,20 @@ export default {
   },
   created() {
     let app = this;
-    for (let i = 0; i==i ; i++) {
-        axios.get(`http://${this.$store.state.addr}:${this.$store.state.port}/coin/${this.$route.params.coin}`)
-            .then(response => {
-              this.coinImage = response.data[0].image;
-              this.high = response.data[0].high_24h;
-              this.low = response.data[0].low_24h;
-              this.current_price = response.data[0].current_price;
-              this.last_updated = response.data[0].last_updated;
-              this.price_change_24h = response.data[0].price_change_24h;
-              this.price_change_percentage_24h = response.data[0].price_change_percentage_24h;
-            })
-      
-    }
+    setInterval(() => {
+      axios.get(`http://${this.$store.state.addr}:${this.$store.state.port}/coin/${this.$route.params.coin}`)
+          .then(response => {
+            this.coinImage = response.data[0].image;
+            this.high = response.data[0].high_24h;
+            this.low = response.data[0].low_24h;
+            this.current_price = response.data[0].current_price;
+            this.last_updated = response.data[0].last_updated;
+            this.price_change_24h = response.data[0].price_change_24h;
+            this.price_change_percentage_24h = response.data[0].price_change_percentage_24h;
+            this.overlay = false;
+          })
+    },1000)
+
 
     let temp;
     var socket = io.connect(`${this.$store.state.addr}:${this.$store.state.port}`);
