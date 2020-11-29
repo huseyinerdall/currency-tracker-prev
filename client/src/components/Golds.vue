@@ -6,11 +6,10 @@
       hide-default-footer
       :loading="!goldloaded"
       disable-pagination
-      height="720"
+      style="border: 1px solid #444767;border-radius:0;background-color:rgba(0,0,0,.3);color:#fff;"
   >
     <template v-slot:item.type="{ item }">
-      <router-link :to="{ name: 'Golds', params: { gold: item.type }}" tag="h3">{{ item.type }}</router-link>
-
+      <router-link :to="{ name: 'Golds', params: { gold: item.type }}" tag="h4" class="white--text body-1">{{ item.type }}</router-link>
     </template>
   </v-data-table>
 </template>
@@ -25,9 +24,12 @@ export default {
     return {
       goldloaded: true,
       headers: [
-        { text: 'Tür',align: 'start', sortable: false,value: 'type',},
-        { text: 'Alış Fiyatı', value: 'Alış',sortable: false,align: 'right', },
-        { text: 'Satış Fiyatı', value: 'Satış',sortable: false,align: 'right', },
+        { text: 'Altın Kurları',align: 'start', sortable: false,value: 'type',class: 'yellow--text darken-1 font-weight-light body-1',},
+        { text: 'Alış', value: 'Alış',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        { text: 'Satış', value: 'Satış',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        { text: 'Yüzde', value: 'Yüzde',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        { text: 'Fark', value: 'Fark',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        { text: 'Saat', value: 'Saat',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
         //{ text: 'Kapanış', value: 'close',sortable: false,align: 'right', },
         //{ text: 'Son Güncelleme', value: 'updated',sortable: false,align: 'right', },
       ],
@@ -60,14 +62,23 @@ export default {
 </script>
 
 
-<style scoped>
+<style>
 .v-data-table > .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper){
-  background: #ff0000 !important;
+  background: rgba(0,0,0,.9) !important;
 }
 td{
   color:white !important;
 }
 h3{
   cursor: pointer;
+}
+.v-data-table__wrapper thead{
+  border-bottom: 1px solid #5e6593 !important;
+}
+.v-data-table__wrapper tr{
+  color: white !important;
+}
+.theme--light.v-data-table > .v-data-table__wrapper > table > thead > tr:last-child > th{
+  border-bottom-color: rgb(68, 71, 103);
 }
 </style>

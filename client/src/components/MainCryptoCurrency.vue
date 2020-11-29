@@ -6,8 +6,7 @@
     hide-default-footer
     :loading="!coinloaded"
     disable-pagination
-    height="720"
-    style="font-size:8px !important"
+    style="border: 1px solid #444767;border-radius:0;background-color:rgba(0,0,0,.3);color:#fff;"
   >
     <template v-slot:item.shortName="{ item }">
       <router-link :to="{ name: 'Coins', params: { coin: item.name }}" tag="h3">{{ item.shortName | uppercase }}</router-link>
@@ -43,11 +42,14 @@ import io from "socket.io-client";
       return {
         coinloaded: true,
         headers: [
-          { text: 'Döviz Adı',align: 'start', sortable: false,value: 'shortName',},
-          { text: 'Satış Fiyatı($)', value: 'price',sortable: false,align: 'right', },
-          { text: 'En Yüksek', value: 'high',sortable: false,align: 'right', },
-          { text: 'En Düşük', value: 'low',sortable: false,align: 'right', },
-          { text: 'Kapanış', value: 'close',sortable: false,align: 'right', },
+          { text: 'Kripto Kurlar',align: 'start', sortable: false,value: 'shortName',class: 'yellow--text darken-1 font-weight-light body-1',},
+          { text: 'Fiyat(USD)', value: 'price',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Fiyat(TL)', value: 'price',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Fark', value: 'high',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Piyasa Hacmi', value: 'low',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Fark (24S)', value: 'close',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Fark (7G)', value: 'close',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
+          { text: 'Saat', value: 'close',sortable: false,align: 'right',class: 'yellow--text darken-1 font-weight-light body-1', },
         ],
         data:[]
       }
@@ -80,7 +82,11 @@ import io from "socket.io-client";
 
 <style scoped>
 .v-data-table > .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper){
-      background: #ff0000 !important;
+  background: rgba(0,0,0,.1) !important;
+  background-attachment: fixed;
+}
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper){
+  background: rgba(0,0,0,.3) !important;
 }
 td{
   color:white !important;

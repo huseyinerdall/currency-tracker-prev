@@ -6,12 +6,15 @@ const axios = require('axios');
 var fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+var moment = require('moment');
 
 
 var parseString = require('xml2js').parseString;
 var utils = require('./utils');
 const db = require("./models");
+
+const Op = db.Sequelize.Op;
+
 
 const SECRET_KEY = 'SI6ImM1Z';
 
@@ -56,8 +59,8 @@ app.get('/tcmb', (req, res) => {
                 for (let i = 0; i < result.length; i++) {
                     temp = {};
                     temp["name"] = result[i]["Isim"][0];
-                    temp["sell"] = result[i]["BanknoteSelling"][0];
-                    temp["buy"] = result[i]["BanknoteBuying"][0];
+                    temp["sell"] = result[i]["BanknoteSelling"][0] || result[i]["ForexSelling"][0];
+                    temp["buy"] = result[i]["BanknoteBuying"][0] || result[i]["ForexBuying"][0];
                     factRes.push(temp);
                 }
                 io.emit('tcmb',factRes);
@@ -135,14 +138,24 @@ app.get('/coin/:coinName', (req, res) => {
     axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinID}&order=market_cap_desc&per_page=100&page=1&sparkline=false`)
         .then(async(response) => {
             if(response.data[0]["current_price"] != temp || !temp){
-                data = await db[coinSymbol.toUpperCase()].findAll();
+                DEFAULT = moment().startOf('day').toString();
+
+                let BEGIN = moment().subtract(1,'d').toString() || DEFAULT;
+                const NOW = new Date();
+                data = await db[coinSymbol.toUpperCase()].findAll({
+                    where: {
+                        createdAt: {
+                            [Op.between]: [BEGIN, NOW],
+                        }
+                    }
+                });
+                console.log(new Date(BEGIN))
                 io.emit(req.params["coinName"],data);
             }
             temp = response.data[0]["current_price"];
             res.json(response.data);
         })
 })
-
 
 
 app.get('/coins', (req, res) => {
@@ -162,6 +175,63 @@ app.get('/coins', (req, res) => {
             }
             res.json(factRes);
         })
+})
+
+app.post('/getcoinaccordingtotimerange', async (req, res) => {
+    let time = req.body.time || 1;
+    //let coinID = utils.search(req.params["coinName"], coins)["id"];
+    let coinName = req.body.coinName;
+    let coinSymbol = utils.search(coinName, coins)["symbol"];
+    let data;
+
+    let BEGIN = moment().subtract(time,'d').toString() || DEFAULT;
+    const NOW = new Date();
+    data = await db[coinSymbol.toUpperCase()].findAll({
+        where: {
+            createdAt: {
+                [Op.between]: [BEGIN, NOW],
+            }
+        }
+    });
+    io.emit(req.params["coinName"],data);
+    res.json(data);
+})
+
+app.post('/sendcomment', async (req, res) => {
+    let fullName = req.body.fullName;
+    let comment = req.body.message;
+    let subject = req.body.subject;
+    db["Comments"].create({
+        fullName: fullName,
+        comment: comment,
+        subject: subject,
+    })
+    //io.emit(req.params["coinName"],data);
+    res.json({
+        fullName: fullName,
+        comment: comment,
+        subject: subject,
+        createdAt: new Date().toLocaleTimeString(),
+    });
+})
+
+app.post('/getcomments', async (req, res) => {
+    let subject = req.body.subject;
+    let data;
+    console.log(subject,"*************************************")
+    let BEGIN = moment().subtract(1,'d').toString() || DEFAULT;
+    const NOW = new Date();
+    data = await db["Comments"].findAll({
+        where: {
+            createdAt: {
+                [Op.between]: [BEGIN, NOW],
+            },
+            subject: subject
+        }
+    });
+    console.log(data,"-*******************************")
+    io.emit(req.params["comments"],data);
+    res.json(data);
 })
 
 app.post('/converter', (req, res) => {
@@ -261,7 +331,8 @@ db.sequelize.sync().then(() => {
                     factRes.push(temp);
 
                     // aşagıdaki koşul sadece api çıktısı aynı sırada sonuçlanırsa düzgün calışır
-                    if(response.data[i]["current_price"] != M[response.data[i]["symbol"]]  && db[response.data[i]["symbol"]]) {
+                    if(response.data[i]["current_price"] != M[response.data[i]["symbol"]]  && db[response.data[i]["symbol"].toUpperCase()]) {
+
                         db[response.data[i]["symbol"].toUpperCase()].create({Fiyat: response.data[i]["current_price"]})
                         //db[response.data[i]["symbol"]].destroy({ truncate : true, cascade: false })
                         M[response.data[i]["symbol"]] = response.data[i]["current_price"];
@@ -277,13 +348,14 @@ db.sequelize.sync().then(() => {
                 for (const element in response.data) {
                     if (element.indexOf("Altın") > 0 || element == '22 Ayar Bilezik' || element == 'Gümüş'){
                         response.data[element]["type"] = element;
-                        //db["$"+utils.turkishToEnglish(element)].destroy({ truncate : true, cascade: false })
-                        /*indis = "$"+utils.turkishToEnglish(element)
-                        if(db[indis]){
+                        indis = "Gold"+utils.turkishToEnglish(element)
+                        //db[indis].destroy({ truncate : true, cascade: true })
+                        if(db[indis] && response.data[element]["Alış"] != C[indis]){
                             db[indis]
                                 .create({Alis: response.data[element]["Alış"],Satis: response.data[element]["Satış"]})
-                        }*/
-                        golds.push(response.data[element])
+                            C[indis] = response.data[element]["Alış"];
+                        }
+                        golds.push(response.data[element]);
                     }else if(element.indexOf("Güncelleme") < 0 && element.indexOf("ÇEKME") < 0){
                         response.data[element]["type"] = element;
                         indis = utils.turkishToEnglish(element)

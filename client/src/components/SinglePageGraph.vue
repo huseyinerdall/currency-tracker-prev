@@ -1,27 +1,64 @@
 <template>
-  <v-container class="ma-0 pa-0">
+  <v-container class="ma-0 mt-6 pa-0" fluid>
+
     <v-row>
-      <h2 class="white--text font-weight-light ml-10">
-        <v-avatar size="32" class="mb-2">
-          <img
-              :src="coinImage"
-              :alt="$route.params.coin"
+      <v-col cols="7">
+        <v-row>
+          <h2 class="white--text font-weight-light ml-10">
+            <v-avatar size="32" class="mb-2">
+              <img
+                  :src="coinImage"
+                  :alt="$route.params.coin"
+              >
+            </v-avatar>
+            {{ $route.params.coin }}
+          </h2>
+          <h2 class="white--text font-weight-light ml-10" :class="[state > 0 ? 'price-up' : 'price-down']">
+            {{ current_price || "--.----"}} $
+          </h2>
+          <h3 class="ml-4 mt-2 white--text" :class="[price_change_24h>=0 ? 'green--text' : 'red--text']">
+            {{ price_change_24h }}
+            <v-icon color="red" v-if="price_change_24h < 0">mdi-trending-down</v-icon>
+            <v-icon color="green" v-else-if="price_change_24h > 0">mdi-trending-up</v-icon>
+            <v-icon color="gray" v-else-if="price_change_24h == 0">mdi-trending-neutral</v-icon>
+          </h3>
+        </v-row>
+      </v-col>
+      <v-col cols="5" class="justify-end align-content-end">
+        <v-row>
+          <v-chip
+              class="ma-2"
+              color="orange"
+              text-color="white"
+              link
+              outlined
+              label
+              @click.stop="openComments"
+
           >
-        </v-avatar>
-        {{ $route.params.coin }}
-      </h2>
-      <h2 class="white--text font-weight-light ml-10" :class="[state > 0 ? 'price-up' : 'price-down']">
-        {{ current_price }} $
+            Yorumlar
+            <v-icon right>
+              mdi-comment
+            </v-icon>
+          </v-chip>
+          <v-spacer></v-spacer>
+          <v-btn-toggle
+              v-model="time"
+              style="border: 1px solid #444767;border-radius:0;background-color:rgba(0,0,0,.3);color:#fff;background:transparent;"
+              mandatory
+              right
+          >
+            <v-btn value="1" style="background: transparent;">24S</v-btn>
+            <v-btn value="7" style="background: transparent;">7G</v-btn>
+            <v-btn value="30" style="background: transparent;">1A</v-btn>
+            <v-btn value="90" style="background: transparent;">3A</v-btn>
+            <v-btn value="365" style="background: transparent;">1Y</v-btn>
+            <v-btn value="1095" style="background: transparent;">3Y</v-btn>
+          </v-btn-toggle>
+        </v-row>
 
-      </h2>
-      <h3 class="ml-4 mt-2 white--text" :class="[price_change_24h>=0 ? 'green--text' : 'red--text']">
-        {{ price_change_24h }}
-        <v-icon color="red" v-if="price_change_24h < 0">mdi-trending-down</v-icon>
-        <v-icon color="green" v-else-if="price_change_24h > 0">mdi-trending-up</v-icon>
-        <v-icon color="gray" v-else-if="price_change_24h == 0">mdi-trending-neutral</v-icon>
-      </h3>
+      </v-col>
     </v-row>
-
     <div id="chart">
       <apexchart ref="realtimeChart" class="ma-0 pa-0" type="area" height="350" :options="chartOptions"
                  :series="series"></apexchart>
@@ -47,7 +84,9 @@ import io from "socket.io-client";
 export default {
   name: "SinglePageGraph",
   data: (app) => ({
-    overlay:true,
+    timeRange: 1,
+    time: 1,
+    overlay:false,
     state: 0,
     coinImage: '',
     high: '',
@@ -118,6 +157,7 @@ export default {
       },
       xaxis: {
         //type: 'datetime',
+        tickAmount: 6,
         labels: {
           style: {
             colors: "#fff",
@@ -142,13 +182,43 @@ export default {
     },
   }),
   methods:{
+    openComments: function(){
+      this.$store.commit('commentDrawer');
+
+    },
     sleep: function(ms) {
       return new Promise((resolve) => {
         setTimeout(resolve, ms);
       });
+    },
+    getGraphData: function () {
+      axios.post(`http://${this.$store.state.addr}:${this.$store.state.port}/getcoinaccordingtotimerange`,{
+        coinName: this.$route.params.coin,
+        time: this.time,
+      })
+          .then(response => {
+            let fetchedData = response.data;
+            let tempDates = [];
+            let time;
+            let tempValues = [];
+            for (let i = 0; i < fetchedData.length; i++) {
+              time = new Date(fetchedData[i]["createdAt"]);
+              tempDates.push(time.toLocaleString('tr'));
+              tempValues.push(fetchedData[i]["Fiyat"])
+            }
+            this.series = [{
+              data: tempValues
+            }]
+            this.chartOptions = {
+              xaxis: {
+                categories: tempDates
+              }
+            }
+          })
     }
   },
   created() {
+    console.log(this.$store)
     let app = this;
     setInterval(() => {
       axios.get(`http://${this.$store.state.addr}:${this.$store.state.port}/coin/${this.$route.params.coin}`)
@@ -176,8 +246,7 @@ export default {
         let tempValues = [];
         for (let i = 0; i < fetchedData.length; i++) {
           time = new Date(fetchedData[i]["createdAt"]);
-          tempDates.push(time.getUTCHours() + 3 + ":" +
-              time.getUTCMinutes() + ":" + time.getUTCSeconds());
+          tempDates.push(time.toLocaleString('tr'));
           tempValues.push(fetchedData[i]["Fiyat"])
         }
         this.series = [{
@@ -193,6 +262,10 @@ export default {
     })
   },
   watch: {
+    time(newVal, oldVal) {
+      console.log(newVal,oldVal);
+      this.getGraphData();
+    },
     current_price(newValue, oldValue) {
       console.log(newValue + "---" + oldValue + "degişti")
       if (+newValue < +oldValue) {
@@ -205,7 +278,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 @keyframes price-up {
   0% {
     background-color: darkgreen;
@@ -232,5 +305,8 @@ export default {
 .price-down {
   -webkit-animation: 1.5s alternate price-down;
   animation: 1.5s alternate price-down;
+}
+.apexcharts-toolbar{
+  z-index: 0 !important;
 }
 </style>

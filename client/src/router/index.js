@@ -7,6 +7,9 @@ import Register from "../views/Register.vue";
 import Coins from "../views/Coins.vue";
 import Golds from "../views/Golds.vue";
 import Wallet from "../views/Wallet.vue";
+import CryptoCurrencyPage from "../views/CryptoCurrencyPage.vue";
+import GoldsPage from "../views/GoldsPage.vue";
+import Profile from "../views/Profile.vue";
 
 // Admin Side
 import Dashboard from "../views/admin/Dashboard.vue";
@@ -18,6 +21,22 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+    meta: {
+      guest: true
+    }
+  },
+  {
+    path: "/kripto-para",
+    name: "CryptoCurrencyPage",
+    component: CryptoCurrencyPage,
+    meta: {
+      guest: true
+    }
+  },
+  {
+    path: "/altin-fiyatlari",
+    name: "GoldsPage",
+    component: GoldsPage,
     meta: {
       guest: true
     }
@@ -41,6 +60,14 @@ const routes = [
   {
     path: "/logout",
     name: "Logout",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/profil",
+    name: "Profile",
+    component: Profile,
     meta: {
       requiresAuth: true
     }

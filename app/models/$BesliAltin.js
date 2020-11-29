@@ -3,17 +3,17 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class $BesliAltin extends Model {
+    class GoldBesliAltin extends Model {
         static associate(models) {
             // define association here
         }
     };
-    $BesliAltin.init({
+    GoldBesliAltin.init({
         Alis: DataTypes.STRING,
         Satis: DataTypes.STRING,
     }, {
         sequelize,
-        modelName: '$BesliAltin',
+        modelName: 'GoldBesliAltin',
     });
-    return $BesliAltin;
+    return GoldBesliAltin;
 };

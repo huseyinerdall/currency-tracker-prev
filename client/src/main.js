@@ -23,6 +23,12 @@ Vue.filter('signint', function (value) {
   return value.toFixed(2);
 })
 
+Vue.filter('nameAvatar', function (value) {
+  let splited = value.split(" ");
+  let len = splited.length;
+  return splited[0][0]+splited[len-1][0];
+})
+
 Vue.filter('uppercase', function (value) {
   return value.toUpperCase()
 })

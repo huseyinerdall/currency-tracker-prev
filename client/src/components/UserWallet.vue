@@ -1,9 +1,9 @@
 <template>
   <v-card
-      max-width="600"
+      style="border-radius: 0;"
   >
     <v-toolbar
-        color="indigo"
+        color="#101449"
         dark
     >
 

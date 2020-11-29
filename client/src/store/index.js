@@ -1,20 +1,22 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import axios from "axios"
+import axios from "axios";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    appName: "Currency Latest",
-    domainName: "currencylatest.com",
+    appName: "Para.Guru",
+    domainName: "para.guru",
     addr: "localhost",
     port: "4000",
     token: localStorage.getItem('jwt') || '',
     status: '',
+    commentDrawer: false,
   },
   getters: {
     isAuthenticated: state => !!state.token,
     authStatus: state => state.status,
+    commentDrawer: state => state.commentDrawer,
   },
   mutations: {
     ["AUTH_REQUEST"]: (state) => {
@@ -27,6 +29,9 @@ export default new Vuex.Store({
     ["AUTH_ERROR"]: (state) => {
       state.status = 'error'
     },
+    commentDrawer(state) {
+      state.commentDrawer = !state.commentDrawer;
+    }
   },
   actions: {
     ["AUTH_REQUEST"]: ({commit, dispatch}, user) => {

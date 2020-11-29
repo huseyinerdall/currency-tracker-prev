@@ -1,58 +1,78 @@
 <template>
-    <v-container>
-      <v-row>
-        <v-col cols="6">
-          <v-card
-            color="blue"
-            dark
-          >
-            <div class="d-flex flex-no-wrap justify-space-between">
-              <div>
-                <v-card-title
-                  class="headline"
-                >USDTRY</v-card-title>
-
-                <v-card-subtitle class="d-flex flex-row mb-6">
-                  <h4>Alış : 8.9898</h4>
-                  <v-spacer></v-spacer>
-                  <h4>Satış : 8.9998</h4>
-                </v-card-subtitle>
-
-                <v-card-actions>
-                </v-card-actions>
-              </div>
-
-            </div>
-          </v-card>
-        </v-col>
-        </v-row>
-      </v-container>
-
+  <v-data-table
+      :headers="headers"
+      :items="data"
+      item-class="d-none"
+      hide-default-footer
+      :loading="!goldloaded"
+      disable-pagination
+      style="border: 1px solid #444767;border-radius:0;background-color:rgba(0,0,0,.3);color:#fff;"
+  >
+    <template v-slot:item.type="{ item }">
+      <router-link :to="{ name: 'Golds', params: { gold: item.type }}" tag="h4" class="white--text body-1">{{ item.type }}</router-link>
+    </template>
+  </v-data-table>
 </template>
 
+
 <script>
-  import axios from 'axios';
-  export default {
-    data () {
-      return {
-        prices: [],
-      }
-    },
-    mounted() {
-      let app = this;
-      setInterval(function(){
-        axios({
-            method: 'GET',
-            url: `http://${this.$store.state.addr}:${this.$store.state.port}`,
-            headers: {
-               'Access-Control-Allow-Origin': '*',
-               'Content-type': 'application/json',
-            }
-        })
-        .then(function(res){
-          app.prices = res.data;
-        })
-      },1000)
+//import axios from "axios";
+import io from "socket.io-client";
+
+export default {
+  data () {
+    return {
+      goldloaded: true,
+      headers: [
+        { text: 'Altın Kurları',align: 'start', sortable: false,value: 'type',class: 'yellow--text darken-1 font-weight-light body-1',},
+        { text: 'Alış', value: 'Alış',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        { text: 'Satış', value: 'Satış',sortable: false,align: 'start',class: 'yellow--text darken-1 font-weight-light body-1', },
+        //{ text: 'Kapanış', value: 'close',sortable: false,align: 'right', },
+        //{ text: 'Son Güncelleme', value: 'updated',sortable: false,align: 'right', },
+      ],
+      data: []
     }
-  }
+  },
+  created() {
+    let app = this;
+    var socket = io.connect(`${this.$store.state.addr}:${this.$store.state.port}`);
+    socket.on("golds", fetchedData => {
+      app.data = fetchedData
+    })
+    /*this.interval = setInterval(() => {
+      let app = this;
+      axios.get("http://localhost:4000/golds")
+          .then((res)=>{
+            app.data = res.data;
+            app.goldloaded = true;
+          })
+    },1000)*/
+  },
+  methods: {
+    getColor (price) {
+      if (price > 400) return 'red'
+      else if (price > 200) return 'orange'
+      else return 'green'
+    },
+  },
+}
 </script>
+
+
+<style scoped>
+.v-data-table > .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper){
+  background: #ff0000 !important;
+}
+td{
+  color:white !important;
+}
+h3{
+  cursor: pointer;
+}
+.v-data-table__wrapper thead{
+  border-bottom: 1px solid #5e6593 !important;
+}
+.v-data-table__wrapper tr{
+  color: white !important;
+}
+</style>

@@ -5,10 +5,10 @@
         <v-col class="mx-auto col-sm-10 col-xs-12 col-lg-5" >
           <v-row>
             <v-col
-            cols="6"
+            cols="12"
             sm="12">
               <v-text-field
-                  color="green"
+                  color="#0059b2"
                   dark
                   label="E-posta"
                   append-outer-icon="mdi-card-account-mail"
@@ -16,10 +16,10 @@
               ></v-text-field>
             </v-col>
             <v-col
-                cols="6"
+                cols="12"
                 sm="12">
               <v-text-field
-                  color="green"
+                  color="#0059b2"
                   dark
                   label="İsim Soyisim"
                   append-outer-icon="mdi-card-account-details"
@@ -27,10 +27,10 @@
               ></v-text-field>
             </v-col>
             <v-col
-                cols="6"
+                cols="12"
                 sm="12">
               <v-text-field
-                  color="green"
+                  color="#0059b2"
                   dark
                   label="Parola"
                   append-outer-icon="mdi-key"
@@ -42,10 +42,10 @@
               ></v-text-field>
             </v-col>
             <v-col
-                cols="6"
+                cols="12"
                 sm="12">
               <v-text-field
-                  color="green"
+                  color="#0059b2"
                   dark
                   label="Parola(Tekrar)"
                   append-outer-icon="mdi-key"

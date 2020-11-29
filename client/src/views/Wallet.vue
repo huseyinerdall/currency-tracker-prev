@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="mt-6">
     <UserWallet />
   </div>
 </template>

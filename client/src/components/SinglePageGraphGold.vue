@@ -1,5 +1,5 @@
 <template>
-  <v-container class="ma-0 pa-0">
+  <v-container class="ma-0 mt-6 pa-0">
     <v-row>
       <h2 class="white--text font-weight-light ml-10">
         <v-avatar size="32" class="mb-2">
@@ -11,7 +11,7 @@
         {{$route.params.gold}}
       </h2>
       <h2 class="white--text font-weight-light ml-10" :class="[state > 0 ? 'price-up' : 'price-down']">
-        {{ alis }}
+        {{ alis || "--.---" }}
         <span v-if="$route.params.gold.indexOf('Ons') == 0">$</span>
         <span v-else>₺</span>
       </h2>
