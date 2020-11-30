@@ -7,7 +7,30 @@ var fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 var moment = require('moment');
+var multer  = require('multer');
+const DIR = './public/uploads/';
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DIR);
+    },
+    filename: (req, file, cb) => {
+        const fileName = 'selam.'+file.originalname.toLowerCase().split('.')[1];
+        cb(null, fileName)
+    }
+});
+
+var upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+    }
+});
 
 var parseString = require('xml2js').parseString;
 var utils = require('./utils');
@@ -277,6 +300,19 @@ app.post('/register', (req, res) => {
         .catch(err => res.send(err.message))
 })
 
+app.post('/avatar', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        console.log("No file received");
+        return res.send({
+            success: false
+        });
+    } else {
+        return res.send({
+            success: "yes"
+        })
+    }
+});
+
 app.post('/login', (req, res) => {
     console.log(req.body)
     if (!req.body.email || !req.body.passwd) {
@@ -298,6 +334,11 @@ app.post('/login', (req, res) => {
             res.send(err.message)
         })
 })
+
+
+
+
+
 
 
 db.sequelize.sync().then(() => {

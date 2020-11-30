@@ -10,6 +10,27 @@
                 <img v-if="userInfo.profileImage" :src="userInfo.profileImage" alt="avatar">
                 <span v-else class="white--text headline">{{userInfo.fullName | nameAvatar}}</span>
               </v-avatar>
+              <v-btn
+                  color="primary"
+                  class="text-none"
+                  rounded
+                  depressed
+                  :loading="isSelecting"
+                  @click="onButtonClick"
+              >
+                <v-icon left>
+                  mdi-camera
+                </v-icon>
+                {{ buttonText }}
+              </v-btn>
+              <input
+                  ref="file"
+                  class="d-none"
+                  type="file"
+                  id="file"
+                  accept="image/*"
+                  @change="onFileChanged"
+              >
             </v-container>
 
             <v-card-title primary-title>
@@ -18,30 +39,65 @@
 
 
             <v-card-text color="white" class="white--text">
+              <p>ID:{{userInfo.id}}<br></p>
+              <v-divider></v-divider>
               <p>Eposta:{{userInfo.email}}<br></p>
               <v-divider></v-divider>
               <p>Üyelik tarihi:{{userInfo.createdAt}}</p>
               <v-divider></v-divider>
               <p>Parola(Şifreli):{{userInfo.passwd}}</p>
             </v-card-text>
+            <v-btn @click="save">KAYDET</v-btn>
           </v-card>
         </v-flex>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 
 export default {
   name: "Profile",
   data () {
     return {
-      card_text: 'Lorem ipsum dolor sit amet, brute iriure accusata ne mea. Eos suavitate referrentur ad, te duo agam libris qualisque, utroque quaestio accommodare no qui. Et percipit laboramus usu, no invidunt verterem nominati mel. Dolorem ancillae an mei, ut putant invenire splendide mel, ea nec propriae adipisci. Ignota salutandi accusamus in sed, et per malis fuisset, qui id ludus appareat.'
+      defaultButtonText: 'Profil görsel',
+      selectedFile: null,
+      isSelecting: false,
+      file: '',
     }
   },
   computed: {
     userInfo () {
       return JSON.parse(localStorage.getItem('user'));
+    },
+    buttonText() {
+      return this.selectedFile ? this.selectedFile.name : this.defaultButtonText
     }
   },
+  methods: {
+    onButtonClick() {
+      this.isSelecting = true
+      window.addEventListener('focus', () => {
+        this.isSelecting = false
+      }, { once: true })
+
+      this.$refs.file.click()
+    },
+    onFileChanged() {
+      this.file = this.$refs.file.files[0];
+      const formData = new FormData();
+      formData.append('file', this.file);
+      axios.post(`http://${this.$store.state.addr}:${this.$store.state.port}/avatar`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    save() {
+
+    }
+  }
 };
 </script>
